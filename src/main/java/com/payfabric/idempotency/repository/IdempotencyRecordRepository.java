@@ -1,0 +1,17 @@
+package com.payfabric.idempotency.repository;
+
+import com.payfabric.idempotency.entity.IdempotencyRecord;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface IdempotencyRecordRepository
+        extends JpaRepository<IdempotencyRecord, UUID> {
+
+    Optional<IdempotencyRecord> findByUserIdAndOperationScopeAndIdempotencyKey(
+            UUID userId,
+            String operationScope,
+            String idempotencyKey
+    );
+}
