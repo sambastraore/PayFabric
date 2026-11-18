@@ -154,4 +154,8 @@ public class User {
     public Merchant getMerchant() {
         return merchant;
     }
+
+    public void assignWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 }

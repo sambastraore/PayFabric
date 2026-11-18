@@ -33,7 +33,6 @@ public class Wallet {
     @JoinColumn(
             name = "user_id",
             nullable = false,
-            unique = true,
             foreignKey = @ForeignKey(name = "fk_wallets_user")
     )
     private User user;

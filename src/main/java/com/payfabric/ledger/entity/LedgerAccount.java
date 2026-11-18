@@ -37,12 +37,11 @@ public class LedgerAccount {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "wallet_id",
-            unique = true,
             foreignKey = @ForeignKey(name = "fk_ledger_accounts_wallet")
     )
     private Wallet wallet;
 
-    @Column(name = "account_code", nullable = false, unique = true, length = 50)
+    @Column(name = "account_code", nullable = false, length = 50)
     private String accountCode;
 
     @Enumerated(EnumType.STRING)
