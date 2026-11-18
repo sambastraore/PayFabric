@@ -16,5 +16,11 @@ spring:
       hibernate:
         format_sql: true
 
+payfabric:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration: 900000
+
 server:
   port: 8080
