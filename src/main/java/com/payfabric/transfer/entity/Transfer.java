@@ -149,4 +149,32 @@ public class Transfer {
     public LocalDateTime getCompletedAt() {
         return completedAt;
     }
+
+    public void markAsProcessing() {
+        if (this.status != TransferStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Only pending transfers can be processed"
+            );
+        }
+
+        this.status = TransferStatus.PROCESSING;
+    }
+
+    public void complete(LedgerTransaction ledgerTransaction) {
+        if (this.status != TransferStatus.PROCESSING) {
+            throw new IllegalStateException(
+                    "Only processing transfers can be completed"
+            );
+        }
+
+        if (ledgerTransaction == null) {
+            throw new IllegalArgumentException(
+                    "Ledger transaction cannot be null"
+            );
+        }
+
+        this.ledgerTransaction = ledgerTransaction;
+        this.status = TransferStatus.SUCCEEDED;
+        this.completedAt = LocalDateTime.now(ZoneOffset.UTC);
+    }
 }

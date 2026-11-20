@@ -3,6 +3,7 @@ package com.payfabric.shared.exception;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,11 +11,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
+import java.util.Map;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -97,6 +98,25 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
     }
+
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(
+            ResponseStatusException ex) {
+
+        HttpStatusCode statusCode = ex.getStatusCode();
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now(ZoneOffset.UTC));
+        body.put("status", statusCode.value());
+        body.put("error", HttpStatus.valueOf(statusCode.value()).getReasonPhrase());
+        body.put("message", ex.getReason());
+
+        return ResponseEntity
+                .status(statusCode)
+                .body(body);
+    }
+
 
     private ResponseEntity<Map<String, Object>> buildResponse(
             HttpStatus status,

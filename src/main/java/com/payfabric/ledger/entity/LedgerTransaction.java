@@ -64,8 +64,7 @@ public class LedgerTransaction {
 
     @OneToMany(
             mappedBy = "ledgerTransaction",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = CascadeType.ALL
     )
     private List<LedgerEntry> entries = new ArrayList<>();
 
@@ -139,5 +138,16 @@ public class LedgerTransaction {
 
     public LocalDateTime getPostedAt() {
         return postedAt;
+    }
+
+    public void post() {
+        if (this.status != LedgerTransactionStatus.DRAFT) {
+            throw new IllegalStateException(
+                    "Only draft transactions can be posted"
+            );
+        }
+
+        this.status = LedgerTransactionStatus.POSTED;
+        this.postedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 }

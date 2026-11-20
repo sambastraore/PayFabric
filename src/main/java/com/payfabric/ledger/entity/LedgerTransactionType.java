@@ -6,5 +6,6 @@ public enum LedgerTransactionType {
     REFUND,
     FEE,
     ADJUSTMENT,
-    REVERSAL
+    REVERSAL,
+    FUNDING,
 }

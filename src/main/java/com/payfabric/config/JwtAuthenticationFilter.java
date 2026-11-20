@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -46,7 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("No Bearer token found.");
+            logAuthenticationState();
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,14 +60,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             if (token.isBlank()) {
+                System.out.println("Token is blank.");
+                logAuthenticationState();
                 filterChain.doFilter(request, response);
                 return;
             }
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                if (!jwtService.isTokenValid(token)) {
+                boolean tokenValid = jwtService.isTokenValid(token);
+                System.out.println("Token valid: " + tokenValid);
+
+                if (!tokenValid) {
                     SecurityContextHolder.clearContext();
+                    logAuthenticationState();
                     filterChain.doFilter(request, response);
                     return;
                 }
@@ -70,6 +81,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UUID userId = jwtService.extractUserId(token);
 
                 User user = userRepository.findById(userId).orElse(null);
+
+
+                if (user != null) {
+                    System.out.println("User status: " + user.getStatus());
+                }
 
                 if (user != null && user.getStatus() == UserStatus.ACTIVE) {
 
@@ -87,13 +103,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
+
+
                 }
             }
 
         } catch (JwtException | IllegalArgumentException ex) {
+            System.out.println("JWT processing error: "
+                    + ex.getClass().getSimpleName());
             SecurityContextHolder.clearContext();
         }
 
+        logAuthenticationState();
+
         filterChain.doFilter(request, response);
+    }
+
+    private void logAuthenticationState() {
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
     }
 }
